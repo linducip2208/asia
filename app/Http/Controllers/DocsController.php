@@ -25,34 +25,53 @@ class DocsController extends Controller
     {
         return [
             [
-                'role' => 'Owner',
-                'email' => 'owner@pos-retail.test',
+                'role' => 'Super Admin',
+                'email' => 'super@erpasia.test',
                 'password' => 'password',
-                'scope' => 'Akses penuh — semua outlet, semua laporan, pengaturan sistem, approval transaksi',
+                'scope' => 'Akses penuh platform — kelola tenant, subscription, white label, monitoring, support tickets',
+                'url' => '/super',
+            ],
+            [
+                'role' => 'Owner',
+                'email' => 'owner@erpasia.test',
+                'password' => 'password',
+                'scope' => 'Akses penuh tenant — semua outlet, semua laporan, pengaturan sistem, approval transaksi',
+                'url' => '/admin',
             ],
             [
                 'role' => 'Manager',
-                'email' => 'manager@pos-retail.test',
+                'email' => 'manager@erpasia.test',
                 'password' => 'password',
-                'scope' => 'Kelola data master, laporan, approval transaksi, manajemen tim',
+                'scope' => 'Kelola data master, laporan, approval transaksi, manajemen tim, produksi',
+                'url' => '/admin',
             ],
             [
                 'role' => 'Admin',
-                'email' => 'admin@pos-retail.test',
+                'email' => 'admin@erpasia.test',
                 'password' => 'password',
                 'scope' => 'Kelola data master, transaksi, inventori, laporan harian',
+                'url' => '/admin',
             ],
             [
                 'role' => 'Kasir',
-                'email' => 'kasir@pos-retail.test',
+                'email' => 'kasir@erpasia.test',
                 'password' => 'password',
-                'scope' => 'Transaksi penjualan, scan barcode, cetak struk, lihat produk & stok',
+                'scope' => 'Transaksi penjualan (POS), scan barcode, cetak struk, lihat produk & stok',
+                'url' => '/pos',
             ],
             [
                 'role' => 'Gudang',
-                'email' => 'gudang@pos-retail.test',
+                'email' => 'gudang@erpasia.test',
                 'password' => 'password',
-                'scope' => 'Kelola stok, stock opname, purchase order, transfer stok, mutasi',
+                'scope' => 'Kelola stok, stock opname, purchase order, transfer stok, mutasi barang',
+                'url' => '/admin',
+            ],
+            [
+                'role' => 'Keuangan',
+                'email' => 'keuangan@erpasia.test',
+                'password' => 'password',
+                'scope' => 'Kelola COA, jurnal, kas/bank, pemasukan, pengeluaran, rekonsiliasi, laporan keuangan',
+                'url' => '/admin',
             ],
         ];
     }

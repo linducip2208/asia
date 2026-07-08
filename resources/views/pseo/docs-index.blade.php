@@ -73,13 +73,14 @@
         <p class="text-gray-500 mb-6">Password semua akun: <code class="bg-gray-100 px-2 py-0.5 rounded font-mono text-sm">password</code></p>
         <div class="overflow-x-auto rounded-xl border border-gray-200">
             <table class="w-full text-left">
-                <thead><tr class="bg-gray-50"><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Role</th><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Email</th><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Password</th><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Cakupan</th></tr></thead>
+                <thead><tr class="bg-gray-50"><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Role</th><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Email</th><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Password</th><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Login via</th><th class="py-3 px-4 text-xs font-bold uppercase text-gray-500">Cakupan</th></tr></thead>
                 <tbody class="text-sm">
                     @foreach($demoAccounts as $a)
                     <tr class="border-t border-gray-100 hover:bg-blue-50/30">
                         <td class="py-3 px-4 font-semibold"><span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded text-xs font-bold">{{ $a['role'] }}</span></td>
                         <td class="py-3 px-4 font-mono text-gray-700 text-xs">{{ $a['email'] }}</td>
                         <td class="py-3 px-4 font-mono text-gray-700 text-xs">{{ $a['password'] }}</td>
+                        <td class="py-3 px-4 text-gray-500 text-xs"><a href="{{ $a['url'] ?? '/admin' }}" class="text-blue-600 hover:underline font-mono">{{ $a['url'] ?? '/admin' }}</a></td>
                         <td class="py-3 px-4 text-gray-500 text-xs">{{ $a['scope'] }}</td>
                     </tr>
                     @endforeach
