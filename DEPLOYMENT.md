@@ -1,13 +1,15 @@
-# Deployment Guide — POS Retail
+# Deployment Guide — ERPAsia SaaS
 
-Panduan deployment production untuk POS Retail (Laravel backend + Flutter kasir app).
+Panduan deployment production untuk ERPAsia SaaS White Label Retail Commerce Platform.
 
 ---
 
 ## Prasyarat Server
 
-- PHP 8.2+
-- MySQL 8.0+ / MariaDB 10.6+
+- PHP 8.3+
+- MySQL 8.0+
+- Composer 2
+- Node.js 20+ (untuk Vite build)
 - Composer 2.x
 - Node.js 18+ (untuk build asset)
 - Nginx atau Apache

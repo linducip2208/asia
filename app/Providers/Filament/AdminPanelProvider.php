@@ -47,11 +47,7 @@ class AdminPanelProvider extends PanelProvider
                 return $tenant && $tenant->favicon_url ? $tenant->favicon_url : '/favicon.svg';
             })
             ->colors([
-                'primary' => function () {
-                    $tenant = $this->getTenant();
-                    $hex = $tenant->primary_color ?? '#3B82F6';
-                    return Color::hex($hex);
-                },
+                'primary' => Color::Blue,
             ])
             ->darkMode(true)
             ->sidebarCollapsibleOnDesktop(true)
