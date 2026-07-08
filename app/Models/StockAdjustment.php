@@ -1,0 +1,27 @@
+<?php
+
+namespace App\Models;
+
+use App\Models\Traits\BelongsToTenant;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class StockAdjustment extends Model
+{
+    use BelongsToTenant;
+
+    protected $fillable = [
+        'adjustment_number', 'tenant_id', 'outlet_id', 'warehouse_id',
+        'user_id', 'type', 'reason', 'notes',
+        'status', 'approved_by', 'approved_at',
+    ];
+
+    protected $casts = ['approved_at' => 'datetime'];
+
+    public function outlet(): BelongsTo { return $this->belongsTo(Outlet::class); }
+    public function warehouse(): BelongsTo { return $this->belongsTo(Warehouse::class); }
+    public function user(): BelongsTo { return $this->belongsTo(User::class); }
+    public function approvedBy(): BelongsTo { return $this->belongsTo(User::class, 'approved_by'); }
+    public function items(): HasMany { return $this->hasMany(StockAdjustmentItem::class); }
+}
