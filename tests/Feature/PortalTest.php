@@ -31,9 +31,12 @@ class PortalTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
+        $this->get('/portal/login'); // get CSRF cookie
+
         $response = $this->post('/portal/login', [
             'email' => $customer->email,
             'password' => 'password',
+            '_token' => csrf_token(),
         ]);
 
         $response->assertRedirect('/portal');
@@ -44,9 +47,10 @@ class PortalTest extends TestCase
     {
         $customer = Customer::factory()->create(['password' => bcrypt('password')]);
 
-        $this->actingAs($customer, 'customer');
+        $this->actingAs($customer, 'customer')
+            ->get('/portal'); // establish session
 
-        $response = $this->post('/portal/logout');
+        $response = $this->post('/portal/logout', ['_token' => csrf_token()]);
 
         $response->assertRedirect('/portal/login');
         $this->assertGuest('customer');
