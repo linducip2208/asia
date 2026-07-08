@@ -184,3 +184,4 @@ Route::get('/robots.txt', function () {
 Route::redirect('/login', '/admin/login')->name('login');
 
 require base_path('routes/pair-routes.php');
+require base_path('routes/tenant.php');

@@ -17,7 +17,7 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'Edit Master Data', 'slug' => 'edit-master-data', 'group' => 'master-data'],
         ['name' => 'Hapus Master Data', 'slug' => 'delete-master-data', 'group' => 'master-data'],
 
-        // Transaksi
+        // Transaksi / Penjualan
         ['name' => 'Lihat Transaksi', 'slug' => 'view-transaksi', 'group' => 'transaksi'],
         ['name' => 'Buat Transaksi', 'slug' => 'create-transaksi', 'group' => 'transaksi'],
         ['name' => 'Edit Transaksi', 'slug' => 'edit-transaksi', 'group' => 'transaksi'],
@@ -29,11 +29,11 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'Edit Pembelian', 'slug' => 'edit-pembelian', 'group' => 'pembelian'],
         ['name' => 'Hapus Pembelian', 'slug' => 'delete-pembelian', 'group' => 'pembelian'],
 
-        // Finance
-        ['name' => 'Lihat Finance', 'slug' => 'view-finance', 'group' => 'finance'],
-        ['name' => 'Buat Finance', 'slug' => 'create-finance', 'group' => 'finance'],
-        ['name' => 'Edit Finance', 'slug' => 'edit-finance', 'group' => 'finance'],
-        ['name' => 'Hapus Finance', 'slug' => 'delete-finance', 'group' => 'finance'],
+        // Keuangan (Finance) — Full
+        ['name' => 'Lihat Keuangan', 'slug' => 'view-finance', 'group' => 'finance'],
+        ['name' => 'Buat Keuangan', 'slug' => 'create-finance', 'group' => 'finance'],
+        ['name' => 'Edit Keuangan', 'slug' => 'edit-finance', 'group' => 'finance'],
+        ['name' => 'Hapus Keuangan', 'slug' => 'delete-finance', 'group' => 'finance'],
 
         // Inventori
         ['name' => 'Lihat Inventori', 'slug' => 'view-inventori', 'group' => 'inventori'],
@@ -47,7 +47,7 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'Edit Operasional', 'slug' => 'edit-operasional', 'group' => 'operasional'],
         ['name' => 'Hapus Operasional', 'slug' => 'delete-operasional', 'group' => 'operasional'],
 
-        // Loyalitas
+        // Loyalitas / CRM
         ['name' => 'Lihat Loyalitas', 'slug' => 'view-loyalitas', 'group' => 'loyalitas'],
         ['name' => 'Buat Loyalitas', 'slug' => 'create-loyalitas', 'group' => 'loyalitas'],
         ['name' => 'Edit Loyalitas', 'slug' => 'edit-loyalitas', 'group' => 'loyalitas'],
@@ -57,11 +57,17 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'Lihat Laporan', 'slug' => 'view-laporan', 'group' => 'laporan'],
         ['name' => 'Export Laporan', 'slug' => 'export-laporan', 'group' => 'laporan'],
 
-        // Marketing
+        // Marketing / Promo
         ['name' => 'Lihat Marketing', 'slug' => 'view-marketing', 'group' => 'marketing'],
         ['name' => 'Buat Marketing', 'slug' => 'create-marketing', 'group' => 'marketing'],
         ['name' => 'Edit Marketing', 'slug' => 'edit-marketing', 'group' => 'marketing'],
         ['name' => 'Hapus Marketing', 'slug' => 'delete-marketing', 'group' => 'marketing'],
+
+        // Produksi / Manufaktur
+        ['name' => 'Lihat Produksi', 'slug' => 'view-produksi', 'group' => 'produksi'],
+        ['name' => 'Buat Produksi', 'slug' => 'create-produksi', 'group' => 'produksi'],
+        ['name' => 'Edit Produksi', 'slug' => 'edit-produksi', 'group' => 'produksi'],
+        ['name' => 'Hapus Produksi', 'slug' => 'delete-produksi', 'group' => 'produksi'],
 
         // Integrasi
         ['name' => 'Lihat Integrasi', 'slug' => 'view-integrasi', 'group' => 'integrasi'],
@@ -69,11 +75,27 @@ class RolePermissionSeeder extends Seeder
         ['name' => 'Edit Integrasi', 'slug' => 'edit-integrasi', 'group' => 'integrasi'],
         ['name' => 'Hapus Integrasi', 'slug' => 'delete-integrasi', 'group' => 'integrasi'],
 
+        // Notifikasi
+        ['name' => 'Lihat Notifikasi', 'slug' => 'view-notifikasi', 'group' => 'notifikasi'],
+        ['name' => 'Kelola Notifikasi', 'slug' => 'manage-notifikasi', 'group' => 'notifikasi'],
+
+        // HR / Pegawai
+        ['name' => 'Lihat Pegawai', 'slug' => 'view-pegawai', 'group' => 'pegawai'],
+        ['name' => 'Buat Pegawai', 'slug' => 'create-pegawai', 'group' => 'pegawai'],
+        ['name' => 'Edit Pegawai', 'slug' => 'edit-pegawai', 'group' => 'pegawai'],
+        ['name' => 'Hapus Pegawai', 'slug' => 'delete-pegawai', 'group' => 'pegawai'],
+
         // Sistem
         ['name' => 'Lihat Sistem', 'slug' => 'view-sistem', 'group' => 'sistem'],
         ['name' => 'Buat Sistem', 'slug' => 'create-sistem', 'group' => 'sistem'],
         ['name' => 'Edit Sistem', 'slug' => 'edit-sistem', 'group' => 'sistem'],
         ['name' => 'Hapus Sistem', 'slug' => 'delete-sistem', 'group' => 'sistem'],
+
+        // Super Admin
+        ['name' => 'Kelola Tenant', 'slug' => 'manage-tenants', 'group' => 'super'],
+        ['name' => 'Kelola Subscription', 'slug' => 'manage-subscriptions', 'group' => 'super'],
+        ['name' => 'Kelola White Label', 'slug' => 'manage-whitelabel', 'group' => 'super'],
+        ['name' => 'Akses Super Panel', 'slug' => 'super-panel-access', 'group' => 'super'],
 
         // Special
         ['name' => 'Akses POS Kasir', 'slug' => 'pos-access', 'group' => 'special'],
@@ -97,13 +119,34 @@ class RolePermissionSeeder extends Seeder
             $permissionMap[$def['slug']] = Permission::create($def)->id;
         }
 
-        // --- ROLES DEFINITION ---
         $roles = [
-            'owner' => [
-                'name' => 'Owner',
-                'description' => 'Pemilik bisnis — akses penuh ke semua fitur & laporan',
+            'super_admin' => [
+                'name' => 'Super Admin',
+                'description' => 'Platform owner — akses penuh Super Admin Panel & semua tenant',
                 'is_system' => true,
                 'permissions' => ['*'],
+            ],
+            'owner' => [
+                'name' => 'Owner',
+                'description' => 'Pemilik bisnis — akses penuh ke semua fitur tenant & laporan',
+                'is_system' => true,
+                'permissions' => [
+                    'view-master-data', 'create-master-data', 'edit-master-data', 'delete-master-data',
+                    'view-transaksi', 'create-transaksi', 'edit-transaksi', 'delete-transaksi',
+                    'view-pembelian', 'create-pembelian', 'edit-pembelian', 'delete-pembelian',
+                    'view-finance', 'create-finance', 'edit-finance', 'delete-finance',
+                    'view-inventori', 'create-inventori', 'edit-inventori', 'delete-inventori',
+                    'view-operasional', 'create-operasional', 'edit-operasional', 'delete-operasional',
+                    'view-loyalitas', 'create-loyalitas', 'edit-loyalitas', 'delete-loyalitas',
+                    'view-laporan', 'export-laporan',
+                    'view-marketing', 'create-marketing', 'edit-marketing', 'delete-marketing',
+                    'view-produksi', 'create-produksi', 'edit-produksi', 'delete-produksi',
+                    'view-integrasi', 'create-integrasi', 'edit-integrasi', 'delete-integrasi',
+                    'view-notifikasi', 'manage-notifikasi',
+                    'view-pegawai', 'create-pegawai', 'edit-pegawai', 'delete-pegawai',
+                    'view-sistem', 'edit-sistem',
+                    'pos-access', 'dashboard-access',
+                ],
             ],
             'manager' => [
                 'name' => 'Manager',
@@ -119,7 +162,10 @@ class RolePermissionSeeder extends Seeder
                     'view-loyalitas', 'create-loyalitas', 'edit-loyalitas',
                     'view-laporan', 'export-laporan',
                     'view-marketing', 'create-marketing', 'edit-marketing',
+                    'view-produksi', 'create-produksi', 'edit-produksi',
                     'view-sistem', 'edit-sistem',
+                    'view-pegawai', 'edit-pegawai',
+                    'view-notifikasi',
                     'pos-access', 'dashboard-access',
                 ],
             ],
@@ -164,6 +210,17 @@ class RolePermissionSeeder extends Seeder
                     'dashboard-access',
                 ],
             ],
+            'keuangan' => [
+                'name' => 'Keuangan',
+                'description' => 'Staff keuangan — kelola COA, jurnal, kas, bank, rekonsiliasi',
+                'is_system' => true,
+                'permissions' => [
+                    'view-finance', 'create-finance', 'edit-finance',
+                    'view-laporan', 'export-laporan',
+                    'view-master-data',
+                    'dashboard-access',
+                ],
+            ],
         ];
 
         $roleModels = [];
@@ -187,7 +244,6 @@ class RolePermissionSeeder extends Seeder
             $roleModels[$slug] = $role;
         }
 
-        // --- ASSIGN ROLES TO DEMO USERS ---
         $users = User::all();
         foreach ($users as $user) {
             $roleSlug = $user->role ?? null;
