@@ -1,5 +1,5 @@
 # Product Requirements Document (PRD)
-## POS Retail — Sistem Point of Sale untuk Toko Ritel
+## ERPAsia — SaaS White Label Retail Commerce Platform
 
 ---
 
@@ -7,747 +7,910 @@
 
 | Versi | Tanggal    | Penulis | Deskripsi Perubahan           |
 |-------|------------|---------|-------------------------------|
+| 2.0   | 2026-07-09 | Tim Dev | Upgrade ke SaaS Multi-Tenant Enterprise |
 | 1.0   | 2026-05-31 | Tim Dev | Draft awal PRD pos-retail     |
 
 ---
 
 ## Daftar Isi
 
-1. [Overview Produk](#1-overview-produk)
-2. [Target User & Persona](#2-target-user--persona)
-3. [Fitur Inti](#3-fitur-inti)
-   - [3.1 Kasir / Point of Sale (Flutter Android)](#31-kasir--point-of-sale-flutter-android)
-   - [3.2 Manajemen Produk & Inventori](#32-manajemen-produk--inventori)
-   - [3.3 Customer & Loyalty](#33-customer--loyalty)
-   - [3.4 Supplier & Pembelian](#34-supplier--pembelian)
-   - [3.5 Multi-Outlet](#35-multi-outlet)
-   - [3.6 Laporan](#36-laporan)
-   - [3.7 Role-Based Access Control](#37-role-based-access-control)
-4. [Tech Stack](#4-tech-stack)
-5. [Non-Functional Requirements](#5-non-functional-requirements)
-6. [Arsitektur Sistem](#6-arsitektur-sistem)
-7. [Database Design Highlights](#7-database-design-highlights)
-8. [UI/UX Guidelines](#8-uiux-guidelines)
-9. [Timeline & Milestone](#9-timeline--milestone)
-10. [Asumsi & Batasan](#10-asumsi--batasan)
+1. [Visi & Misi Produk](#1-visi--misi-produk)
+2. [Target Vertikal Industri](#2-target-vertikal-industri)
+3. [Target User & Persona](#3-target-user--persona)
+4. [Fitur Lengkap per Modul](#4-fitur-lengkap-per-modul)
+5. [Tech Stack](#5-tech-stack)
+6. [Non-Functional Requirements](#6-non-functional-requirements)
+7. [Arsitektur Multi-Tenant](#7-arsitektur-multi-tenant)
+8. [Database Strategy](#8-database-strategy)
+9. [UI/UX Guidelines](#9-uiux-guidelines)
+10. [Timeline & Milestone](#10-timeline--milestone)
 11. [Definisi Sukses](#11-definisi-sukses)
+12. [Glosarium](#12-glosarium)
 
 ---
 
-## 1. Overview Produk
+## 1. Visi & Misi Produk
 
-**POS Retail** adalah sistem manajemen toko ritel terintegrasi yang mencakup aplikasi kasir (Android) dan panel administrasi (web). Sistem dirancang untuk menggantikan pencatatan manual / Excel dengan single source of truth yang real-time, akurat, dan bisa diakses dari mana saja.
+### Visi
+Menjadi **platform commerce ritel white-label #1 di Asia Tenggara** yang memungkinkan siapapun menjalankan bisnis ritel modern tanpa membangun software dari nol.
 
-### Jenis Toko yang Didukung
-- Fashion & butik (pakaian, aksesori, sepatu)
-- Elektronik & gadget (HP, laptop, aksesori)
-- F&B / kuliner (restoran, kafe, bakery)
-- Minimarket & sembako
-- Toko obat & apotek
-- Toko bangunan & material
-- Dan toko ritel umum lainnya
+### Misi
+1. Menyediakan **satu codebase** untuk semua jenis bisnis ritel
+2. Memungkinkan **white-label penuh** — reseller bisa rebrand dan jual sebagai produk sendiri
+3. **SaaS-native** — tenant bisa daftar online, pilih paket, langsung pakai
+4. **Open integration** — tidak lock-in ke provider payment/SMS/AI tertentu
+5. **Enterprise-grade** — arsitektur siap melayani jutaan transaksi per hari
 
-### Value Proposition
-| Sebelum | Sesudah |
-|---------|---------|
-| Catatan penjualan di buku / Excel, rawan hilang | Semua transaksi tercatat rapi di database, real-time |
-| Stok tidak akurat, sering kehabisan tanpa tahu | Low stock alert otomatis, stok opname periodik |
-| Tidak tahu produk mana yang paling laku | Best seller report per periode |
-| Kasir bisa curang (markdown harga manual) | Role-based access, semua aksi tercatat di audit log |
-| Customer tidak tercatat, tidak ada loyalitas | CRM + poin + membership tier otomatis |
-| Multi cabang = data terpisah, ribet konsolidasi | Dashboard terpusat, stok transfer antar cabang |
+### Jenis Bisnis yang Didukung (SATU CODEBASE)
 
----
-
-## 2. Target User & Persona
-
-### 2.1 Pemilik Toko (Owner)
-- **Kebutuhan:** Melihat dashboard penjualan semua outlet, laba rugi, best seller, arus kas
-- **Skill teknis:** Menengah (bisa pakai smartphone & laptop)
-- **Frekuensi akses:** Harian (pagi lihat laporan kemarin, sore cek omset hari ini)
-- **Device:** Laptop / tablet, kadang HP
-
-### 2.2 Manager Toko
-- **Kebutuhan:** Kelola stok, atur harga, kelola supplier, approval purchase order, rekap closing kasir
-- **Skill teknis:** Menengah–tinggi
-- **Frekuensi akses:** Sepanjang jam kerja
-- **Device:** Laptop (admin panel)
-
-### 2.3 Kasir
-- **Kebutuhan:** Scan barcode, input transaksi, terima pembayaran, cetak struk, hold transaksi
-- **Skill teknis:** Dasar–menengah
-- **Frekuensi akses:** Sepanjang shift
-- **Device:** Android tablet / HP (aplikasi Flutter)
-
-### 2.4 Admin Gudang
-- **Kebutuhan:** Terima barang dari supplier, input stok masuk, stok opname, kirim stok ke cabang
-- **Skill teknis:** Dasar–menengah
-- **Frekuensi akses:** Harian
-- **Device:** Laptop (admin panel) / Android (scan barcode terima barang)
+| Vertikal | Contoh Bisnis |
+|---|---|
+| **Retail Store** | Toko kelontong, sembako, aksesoris |
+| **Grocery / Supermarket** | Supermarket, hypermarket |
+| **Minimarket** | Convenience store, franchise minimarket |
+| **Wholesale / Distributor** | Grosir, distributor B2B |
+| **Restaurant** | Restoran full-service, fine dining |
+| **Cafe** | Coffee shop, bakery, dessert cafe |
+| **Pharmacy / Apotek** | Apotek, toko obat |
+| **Workshop / Bengkel** | Bengkel motor, mobil, service center |
+| **Laundry** | Laundry kiloan, satuan, dry clean |
+| **Fashion / Butik** | Pakaian, sepatu, tas, aksesori |
+| **Electronics** | HP, laptop, gadget, aksesori |
+| **Furniture** | Mebel, furniture custom |
 
 ---
 
-## 3. Fitur Inti
+## 2. Target Vertikal Industri
 
-### 3.1 Kasir / Point of Sale (Flutter Android)
+### Konfigurasi per Vertikal (Feature Toggle)
 
-Aplikasi Flutter yang berjalan di Android (tablet 10" atau HP 6"+) sebagai antarmuka utama transaksi di depan.
-
-#### 3.1.1 Barcode Scanner
-- Dukungan kamera belakang sebagai scanner (via library `mobile_scanner`)
-- Dukungan Bluetooth barcode scanner eksternal sebagai input keyboard
-- Scan barcode → auto add ke cart (qty default 1, bisa diubah)
-- Scan barcode yang sama → increment qty
-- Barcode tidak ditemukan → opsi "tambah produk baru" (jika user punya izin)
-
-#### 3.1.2 Keranjang Belanja (Cart)
-- Daftar item dengan: foto thumbnail, nama produk, harga satuan, qty, subtotal
-- Ubah qty: tombol +/- atau input manual
-- Hapus item: swipe left atau icon trash
-- Diskon per item: nominal (Rp) atau persentase (%)
-- Catatan per item (opsional, misal "size XL warna merah")
-- Ringkasan bawah: total item, subtotal, diskon total, pajak (jika ada), grand total
-
-#### 3.1.3 Multi Payment
-- **Tunai:** Input nominal bayar → hitung kembalian otomatis
-- **QRIS:** Generate QR statis / dinamis → konfirmasi setelah customer bayar
-- **Transfer Bank:** Pilih bank tujuan (BCA, Mandiri, BRI, BNI, dll.)
-- **E-Wallet:** GoPay, OVO, DANA, ShopeePay, LinkAja
-- **Kartu Debit/Kredit:** Input via EDC (manual input nomor approval)
-
-#### 3.1.4 Split Payment
-- Customer bisa bayar dengan kombinasi 2+ metode (contoh: tunai Rp 50.000 + QRIS Rp 30.000)
-- UI modal split: tampilkan sisa yang harus dibayar → pilih metode → input nominal → ulangi sampai lunas
-- Setiap split tercatat sebagai payment line item terpisah
-
-#### 3.1.5 Cetak Struk & Kirim Digital
-- **Cetak Bluetooth:** Koneksi ke thermal printer (ESC/POS) via Bluetooth, cetak struk 58mm / 80mm
-- **Kirim WA:** Generate struk text/image → share via WhatsApp intent
-- **Kirim Email:** Kirim struk PDF ke email customer (ambil dari database customer)
-- Struk berisi: nama toko, alamat, tanggal, kasir, daftar item, total, pembayaran, kembalian
-
-#### 3.1.6 Hold & Recall
-- Kasir bisa **hold** transaksi yang belum selesai (customer masih memilih, nunggu teman, dll.)
-- Hold list tampil di drawer → tap untuk melanjutkan (recall)
-- Hold transaksi bertahan sampai akhir shift / dihapus manual
-- Jumlah hold item tampil badge di tombol "Hold"
-
-#### 3.1.7 Offline Mode → Auto Sync
-- Saat koneksi internet putus, aplikasi Flutter tetap bisa transaksi (data produk & harga di-cache di lokal SQLite)
-- Transaksi offline disimpan di local queue
-- Begitu koneksi pulih → auto sync transaksi ke server (background, non-blocking)
-- Conflict resolution: server timestamp sebagai acuan (last write wins)
-- Indikator status koneksi di top bar (online hijau / offline merah)
-
-#### 3.1.8 Fitur Tambahan Kasir
-- **Pencarian produk:** Search bar dengan debounce, hasil real-time
-- **Shortcut kategori:** Grid kategori di atas cart untuk filter cepat
-- **Customer selection:** Pilih customer dari database sebelum checkout → auto apply diskon member
-- **Shift management:** Kasir login di awal shift → semua transaksi tercatat per shift → closing di akhir shift (hitung cash drawer)
+| Fitur | Retail | F&B | Apotek | Bengkel | Laundry | Grosir |
+|---|---|---|---|---|---|---|
+| Barcode Scanner | ✅ | ✅ | ✅ | ❌ | ❌ | ✅ |
+| Table Management | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Kitchen Display | ❌ | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Batch / Expiry | ❌ | ✅ | ✅ | ❌ | ❌ | ✅ |
+| Resep Dokter | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Service Advisors | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Spare Parts | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Laundry Status | ❌ | ❌ | ❌ | ❌ | ✅ | ❌ |
+| Production / BOM | ❌ | ✅ | ✅ | ❌ | ❌ | ❌ |
+| Multi Price Tier | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+| Serial Number | ✅ | ❌ | ✅ | ❌ | ❌ | ❌ |
 
 ---
 
-### 3.2 Manajemen Produk & Inventori
+## 3. Target User & Persona
 
-#### 3.2.1 CRUD Produk + Varian
-- **Produk:** Nama, SKU (auto-generate), kategori, brand, supplier default, harga beli, gambar (multiple)
-- **Varian:** Ukuran (S/M/L/XL), warna (merah/biru/hitam), dll. — kombinatorial
-- Setiap varian punya: SKU sendiri, harga jual sendiri, stok sendiri, barcode sendiri
-- Harga bisa di-set per varian atau inherit dari produk induk
-- Gambar bisa di-set per varian (misal warna beda = foto beda)
+### Super Admin (Platform Owner)
+- **Kebutuhan:** Kelola semua tenant, subscription, billing, monitoring, license
+- **Skill:** Tinggi (technical)
+- **Frekuensi:** Harian
+- **Panel:** Super Admin Panel (`/super`)
 
-#### 3.2.2 Multi Satuan
-- Produk bisa dijual dalam beberapa satuan: pcs, box, lusin, karton, kg, gram, meter, liter
-- Konversi antar satuan (1 box = 12 pcs, 1 lusin = 12 pcs, 1 kg = 1000 gram)
-- Harga per satuan bisa berbeda (beli eceran Rp 5.000/pcs, beli box Rp 50.000/box → hemat)
-- Di kasir: tampil opsi satuan saat scan / pilih produk
+### Owner / Pemilik Bisnis (Tenant Admin)
+- **Kebutuhan:** Dashboard bisnis, laporan, kelola user, atur strategi harga
+- **Skill:** Menengah
+- **Frekuensi:** Harian
+- **Panel:** Tenant Admin Panel (`/admin`)
 
-#### 3.2.3 Stok Masuk & Keluar
-- **Stok Masuk:** Dari purchase order (PO), retur customer, stok transfer dari cabang, adjustment manual
-- **Stok Keluar:** Dari penjualan (auto decrement), retur supplier, stok transfer ke cabang, rusak/hilang, adjustment manual
-- Setiap mutasi stok tercatat di `stock_movements` dengan: produk, qty, tipe, referensi, user, timestamp
-- Stok real-time: setiap transaksi langsung update `stock` field di tabel produk
+### Manager Operasional
+- **Kebutuhan:** Kelola stok, supplier, approval, rekap kasir, closing harian
+- **Skill:** Menengah-tinggi
+- **Frekuensi:** Sepanjang jam kerja
+- **Panel:** Tenant Admin Panel
 
-#### 3.2.4 Stok Opname
-- Periodik (misal bulanan) atau ad-hoc
-- Admin pilih produk → input stok fisik → sistem bandingkan dengan stok sistem → selisih
-- Selisih dicatat sebagai adjustment stok (masuk/keluar)
-- History opname lengkap: siapa, kapan, selisih per produk
+### Kasir
+- **Kebutuhan:** Transaksi cepat, scan barcode, terima bayar, cetak struk
+- **Skill:** Dasar-menengah
+- **Frekuensi:** Sepanjang shift
+- **Panel:** POS Interface (`/pos`) atau Flutter App
 
-#### 3.2.5 Low Stock Alert
-- Setiap produk punya **minimum stock threshold** (default 5, bisa diubah per produk)
-- Saat stok ≤ threshold → muncul di dashboard widget "Low Stock Alert"
-- Notifikasi ke Owner/Manager (opsional: via WA / Telegram)
-- Bisa langsung klik → buat purchase order ke supplier
+### Admin Gudang
+- **Kebutuhan:** Terima barang, stok opname, transfer stok
+- **Skill:** Dasar-menengah
+- **Frekuensi:** Harian
+- **Panel:** Tenant Admin Panel
 
-#### 3.2.6 Expiry Tracking
-- Khusus F&B, obat, dan produk dengan masa kadaluarsa
-- Setiap batch stok masuk punya tanggal expired
-- Dashboard alert: "Expiring in 7 days" / "Expired"
-- FEFO (First Expired First Out) suggestion saat kasir: produk yang hampir expired dijual dulu
-
-#### 3.2.7 Harga Multi-Tier
-- **Harga Eceran:** Harga normal untuk customer walk-in
-- **Harga Grosir:** Harga untuk pembelian di atas qty tertentu (misal beli 6+ = diskon 10%)
-- **Harga Member:** Per tier (Silver 5%, Gold 10%, Platinum 15%)
-- Harga ditampilkan jelas di kasir: coret harga normal, tampil harga yang berlaku
+### Customer / Pelanggan (End User)
+- **Kebutuhan:** Cek poin, riwayat belanja, upload bukti bayar
+- **Skill:** Dasar
+- **Frekuensi:** Sesekali
+- **Panel:** Customer Portal (`/portal`)
 
 ---
 
-### 3.3 Customer & Loyalty
+## 4. Fitur Lengkap per Modul
 
-#### 3.3.1 Database Customer
-- Data: Nama, no HP (unique), email, alamat, tanggal lahir, jenis kelamin
-- Riwayat pembelian lengkap (produk, nominal, frekuensi, tanggal)
-- Total belanja seumur hidup (lifetime value)
-- Segmentasi: new, active, dormant, churned (berdasarkan transaksi terakhir)
+### 4.1 DASHBOARD
 
-#### 3.3.2 Poin Reward
-- Konfigurasi: Rp X pembelanjaan = 1 poin (misal Rp 1.000 = 1 poin) — bisa diubah di settings
-- Poin bisa ditukar dengan diskon / produk gratis (konversi di settings)
-- Poin expired setelah X bulan tidak ada transaksi (default 12 bulan)
-- Notifikasi otomatis: "Poin Anda akan expired bulan depan!"
+#### Super Admin Dashboard
+| Widget | Deskripsi |
+|---|---|
+| Total Tenants | Jumlah tenant aktif/total |
+| MRR (Monthly Recurring Revenue) | Pendapatan berulang bulan ini |
+| New Tenants | Tenant baru 30 hari terakhir |
+| Churn Rate | Tenant berhenti 30 hari terakhir |
+| Resource Usage | Storage, API calls, users per tenant |
+| System Health | CPU, memory, disk, queue status |
+| Recent Tickets | Support ticket terbaru |
+| Revenue Chart | Grafik MRR 12 bulan |
 
-#### 3.3.3 Membership Tier
-- **Silver:** Default untuk semua customer baru. Syarat: daftar. Benefit: diskon 2%, poin 1×.
-- **Gold:** Syarat: total belanja > Rp 5.000.000 dalam 6 bulan. Benefit: diskon 5%, poin 1.5×, gratis ongkir area tertentu.
-- **Platinum:** Syarat: total belanja > Rp 25.000.000 dalam 12 bulan. Benefit: diskon 10%, poin 2×, gratis ongkir, priority support, akses pre-order.
-- Upgrade/downgrade otomatis berdasarkan kalkulasi bulanan
-- Badge member muncul di struk dan aplikasi kasir
-
-#### 3.3.4 Diskon Otomatis per Member
-- Saat kasir pilih customer → sistem auto hitung diskon member yang berlaku
-- Diskon bisa di-override manager (dengan alasan, tercatat di audit log)
-- Promo / voucher bisa stacking dengan diskon member (konfigurasi: "bisa digabung" atau "tidak bisa")
-
----
-
-### 3.4 Supplier & Pembelian
-
-#### 3.4.1 Purchase Order (PO)
-- Form PO: pilih supplier, pilih produk (bisa multiple), qty, harga beli, tanggal kirim estimasi
-- Status PO: draft → dikirim → dikonfirmasi supplier → sebagian diterima → selesai
-- Approval PO: jika total di atas threshold (setting), perlu approval Manager/Owner
-- PO bisa dibuat otomatis dari low stock alert (sistem suggest qty berdasarkan rata-rata penjualan)
-
-#### 3.4.2 Penerimaan Barang
-- Scan / pilih PO → input qty yang diterima per item (bisa sebagian)
-- Update stok otomatis setelah penerimaan
-- Jika qty diterima < qty PO → PO status "sebagian diterima", bisa diterima lagi nanti
-- Catat nomor batch & tanggal expired (jika produk dengan expiry)
-- Generate barcode label untuk produk baru (opsional, langsung print)
-
-#### 3.4.3 Retur Supplier
-- Retur barang rusak / expired / tidak sesuai
-- Kurangi stok otomatis
-- Catat nominal retur sebagai pengurang hutang ke supplier
-- Status: menunggu pickup → selesai
-
-#### 3.4.4 Hutang AP (Accounts Payable)
-- Setiap PO yang diterima → otomatis catat sebagai hutang ke supplier
-- Jatuh tempo berdasarkan term pembayaran supplier (contoh: net 30 hari)
-- Alert hutang jatuh tempo
-- Pembayaran hutang dicatat → update sisa hutang
-- Laporan aging AP: 0-30 hari, 31-60 hari, 61-90 hari, >90 hari
+#### Tenant Dashboard (per role)
+| Widget | Visible To |
+|---|---|
+| Stats Overview (Pendapatan, Transaksi, Customer, Stok Rendah) | Semua role |
+| Revenue Chart (30 hari) | Owner, Manager |
+| Top Products Chart | Owner, Manager |
+| Payment Method Donut | Owner, Manager |
+| Recent Orders Table | Semua (scoped per outlet) |
+| Low Stock Alert Table | Semua |
+| Expiring Products Alert | Manager, Gudang |
+| Kasir Today Transactions | Kasir |
+| Pending Approvals | Owner, Manager |
+| Warehouse Purchase Orders | Gudang |
+| Cash Drawer Status | Kasir, Manager |
 
 ---
 
-### 3.5 Multi-Outlet
+### 4.2 PENJUALAN (Sales)
 
-#### 3.5.1 Dashboard Terpusat
-- Owner bisa lihat gabungan semua outlet dalam satu dashboard
-- Filter per outlet di setiap widget & laporan
-- Perbandingan antar outlet (grafik batang: omset per outlet bulan ini)
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **POS Kasir** | ✅ Ada | Interface kasir cepat (Blade + Alpine.js) |
+| **Daftar Penjualan** | ✅ Ada | List, filter, detail order, receipt |
+| **Retur Penjualan** | ✅ Ada | Return barang, refund calculation |
+| **Quotation** | ❌ Baru | Quote → Order conversion workflow |
+| **Draft Penjualan** | ❌ Baru | Simpan transaksi sebagai draft, resume nanti |
+| **Hold / Suspend Bill** | ✅ Ada | Tahan transaksi yang belum selesai |
+| **Delivery Order** | ❌ Baru | Generate DO, tracking pengiriman |
+| **Riwayat Transaksi** | ✅ Ada | Riwayat per shift, per kasir |
 
-#### 3.5.2 Stok Transfer Antar Cabang
-- Outlet A kirim stok ke Outlet B
-- Form transfer: pilih outlet tujuan, pilih produk & qty
-- Status: request → approved → dikirim → diterima
-- Saat diterima: stok Outlet A berkurang, Outlet B bertambah (auto)
-- Biaya transfer bisa dicatat (opsional, untuk costing)
+#### Quotation Workflow
+```
+Draft Quote → Kirim ke Customer → 
+Follow-up / Negosiasi → Accepted → 
+Convert ke Order → Order Diproses
+```
 
-#### 3.5.3 Independent Pricing per Outlet
-- Setiap outlet bisa punya harga jual berbeda (biaya operasional beda, target market beda)
-- Default: inherit harga dari pusat, bisa override
-
----
-
-### 3.6 Laporan
-
-#### 3.6.1 Sales Summary
-- Filter: tanggal (dari–sampai), outlet, kasir, customer, kategori
-- Ringkasan: total transaksi, total item terjual, rata-rata per transaksi, omset, laba kotor
-- Grafik: bar chart omset harian, line chart tren mingguan
-- Tabel detail per transaksi (bisa drill-down lihat item)
-- Export: PDF (format laporan), Excel (format mentah)
-
-#### 3.6.2 Profit & Loss (Laba Rugi)
-- Pendapatan: total penjualan (setelah diskon & retur)
-- HPP (Harga Pokok Penjualan): total harga beli produk yang terjual
-- Laba Kotor = Pendapatan – HPP
-- Biaya operasional: gaji, sewa, listrik, dll. (input manual atau dari modul finance)
-- Laba Bersih = Laba Kotor – Biaya Operasional
-- Grafik: bar chart perbandingan pendapatan vs HPP vs laba
-
-#### 3.6.3 Best Seller
-- Top 10/25/50 produk berdasarkan: qty terjual / omset / laba
-- Filter periode, outlet, kategori
-- Grafik: horizontal bar chart
-- Slow mover: produk dengan penjualan paling rendah (candidate diskon / hapus)
-
-#### 3.6.4 Closing Cash (Tutup Kasir)
-- Per shift: total transaksi tunai, non-tunai, selisih (input fisik vs sistem)
-- Rekap per metode bayar
-- Riwayat closing per kasir per shift
-- Print laporan closing untuk diserahkan ke manager
-
-#### 3.6.5 Export
-- **PDF:** Format profesional dengan header toko, periode, logo. Gunakan Barryvdh/DomPDF.
-- **Excel:** Export via Filament Exporter (`pxlrbt/filament-excel`), support CSV & XLSX
-- Semua laporan bisa di-export dengan filter yang sedang aktif
+#### Delivery Order Workflow
+```
+Order Dibayar → Generate DO → 
+Assign Kurir → Pick & Pack → 
+Dalam Pengiriman → Terkirim / Diterima
+```
 
 ---
 
-### 3.7 Role-Based Access Control
+### 4.3 PEMBELIAN (Purchases)
 
-| Izin                          | Owner | Manager | Kasir | Admin Gudang |
-|-------------------------------|:-----:|:-------:|:-----:|:------------:|
-| Dashboard semua outlet        |   ✅   |    ✅    |   ❌   |      ❌       |
-| Dashboard outlet sendiri      |   ✅   |    ✅    |   ✅   |      ✅       |
-| Transaksi penjualan           |   ✅   |    ✅    |   ✅   |      ❌       |
-| Hold & recall                 |   ✅   |    ✅    |   ✅   |      ❌       |
-| Diskon manual / override      |   ✅   |    ✅    |   ❌   |      ❌       |
-| Void / batalkan transaksi     |   ✅   |    ✅    |   ❌   |      ❌       |
-| Kelola produk                 |   ✅   |    ✅    |   ❌   |      ✅       |
-| Stok opname                   |   ✅   |    ✅    |   ❌   |      ✅       |
-| Kelola customer               |   ✅   |    ✅    |   ✅   |      ❌       |
-| Purchase order                |   ✅   |    ✅    |   ❌   |      ✅       |
-| Penerimaan barang             |   ✅   |    ✅    |   ❌   |      ✅       |
-| Approval PO                   |   ✅   |    ✅    |   ❌   |      ❌       |
-| Transfer stok antar cabang    |   ✅   |    ✅    |   ❌   |      ✅       |
-| Lihat laporan                 |   ✅   |    ✅    |   ❌   |      ❌       |
-| Export laporan                |   ✅   |    ✅    |   ❌   |      ❌       |
-| Kelola user & role            |   ✅   |    ❌    |   ❌   |      ❌       |
-| Konfigurasi sistem            |   ✅   |    ❌    |   ❌   |      ❌       |
-| Lihat audit log               |   ✅   |    ❌    |   ❌   |      ❌       |
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Purchase Order (PO)** | ✅ Ada | CRUD PO, approval workflow |
+| **Pembelian / Penerimaan** | ❌ Baru | Terima barang dari PO, update stok |
+| **Retur Pembelian** | ❌ Baru | Return barang ke supplier |
+| **Supplier Invoice** | ✅ Ada | Kelola invoice dari supplier |
+| **Riwayat Pembelian** | ❌ Baru | Audit trail semua pembelian |
 
-**Catatan:**
-- Roles built-in tidak bisa dihapus, hanya bisa dinonaktifkan
-- Owner bisa membuat custom role tambahan (via admin panel)
-- Setiap permission bisa di-assign per role
-- Semua aksi yang mengubah data tercatat di audit log
+#### PO Workflow
+```
+Low Stock Alert → Buat PO (auto-suggest qty) → 
+Draft → Kirim ke Supplier → 
+Approval (jika di atas threshold) → 
+Konfirmasi Supplier → 
+Terima Barang (sebagian/lengkap) → 
+Update Stok & Hutang → Selesai
+```
 
 ---
 
-## 4. Tech Stack
+### 4.4 INVENTORY
 
-### Backend (Laravel 13)
-| Komponen        | Teknologi                               | Keterangan                         |
-|-----------------|-----------------------------------------|------------------------------------|
-| Framework       | Laravel 13                              | PHP 8.4+                           |
-| Admin Panel     | Filament 5.6                            | Full-stack admin panel             |
-| Templating      | Blade + Tailwind CSS 4                  | Custom theme responsive            |
-| Reactive        | Livewire 4                              | Komponen dinamis di admin panel    |
-| Database        | MySQL 8.4                               | Primary database                   |
-| Cache           | Redis                                   | Queue, cache, session              |
-| Queue           | Laravel Queue (Redis driver)            | Proses async (sync, notif, export) |
-| API             | Laravel Sanctum                         | Token-based auth untuk Flutter     |
-| Real-time       | Laravel Reverb                          | WebSocket untuk notifikasi         |
-| PDF             | Barryvdh/DomPDF                         | Export laporan PDF                 |
-| Excel           | pxlrbt/filament-excel                   | Export laporan Excel               |
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Produk** | ✅ Ada | CRUD produk + varian + multi satuan |
+| **Kategori** | ✅ Ada | Hierarchical category tree |
+| **Brand** | ✅ Ada | Merek produk |
+| **Unit / Satuan** | ✅ Ada | Satuan + konversi (pcs, box, kg, ltr) |
+| **Gudang** | ❌ Baru | Multi-warehouse management |
+| **Outlet** | ✅ Ada | Multi-outlet/ cabang |
+| **Stok Masuk** | ❌ Baru | Inbound stock receipt log |
+| **Stok Keluar** | ❌ Baru | Outbound stock dispatch log |
+| **Transfer Stok** | ✅ Ada | Transfer antar gudang/outlet |
+| **Stok Opname** | ✅ Ada | Periodik & ad-hoc stock count |
+| **Penyesuaian Stok** | ❌ Baru | Manual adjustment dengan reason |
+| **Batch Number** | ❌ Baru | Lot/batch tracking per stok masuk |
+| **Expired Product** | ❌ Baru | Expiry date tracking + FEFO |
+| **Barcode / Label** | ⚠️ Partial | Generate & print barcode label |
 
-### Frontend Admin (Filament + Blade)
-| Komponen        | Teknologi               | Keterangan                             |
-|-----------------|-------------------------|----------------------------------------|
-| Panel           | Filament 5.6            | Admin panel dengan 9 navigation group  |
-| Styling         | Tailwind CSS 4          | Custom theme premium, responsive       |
-| Font            | Inter + JetBrains Mono  | Via Bunny CDN                          |
-| Charts          | Chart.js                | Grafik di dashboard & laporan          |
-| Icons           | Heroicons (via Blade)   | Icon set standar Filament              |
+#### Gudang Management
+- Multi gudang per outlet
+- Kapasitas per gudang
+- Rack/bin location
+- Default gudang per produk
 
-### Frontend Kasir (Flutter Android)
-| Komponen        | Teknologi                    | Keterangan                         |
-|-----------------|------------------------------|------------------------------------|
-| Framework       | Flutter 3.29+                | Cross-platform Android             |
-| State           | Riverpod                     | State management                   |
-| HTTP Client     | Dio                          | API calls ke Laravel Sanctum       |
-| Local DB        | Drift (SQLite)               | Offline cache produk & transaksi   |
-| Scanner         | mobile_scanner               | Barcode via kamera                 |
-| Bluetooth Print | esc_pos_printer / blue_print | Thermal printer 58mm/80mm          |
-| Sync            | Custom sync engine           | Offline queue → auto sync          |
-
-### DevOps & Tools
-| Komponen        | Teknologi               | Keterangan                         |
-|-----------------|-------------------------|------------------------------------|
-| Version Control | Git + GitHub            | Source code management             |
-| CI/CD           | GitHub Actions          | Automated testing & deployment     |
-| Server          | Nginx + PHP-FPM         | Production environment             |
-| Supervisor      | Supervisor              | Queue worker, scheduler, Reverb    |
-| Monitoring      | Laravel Telescope       | Debugging & monitoring dev/staging |
+#### Batch & Expiry
+- Setiap stok masuk punya batch number
+- Expiry date per batch
+- FEFO (First Expired First Out) saat picking
+- Alert: expiring in 30/14/7/1 days
 
 ---
 
-## 5. Non-Functional Requirements
+### 4.5 PRODUKSI / MANUFAKTUR
 
-### 5.1 Offline Mode
-- Aplikasi Flutter harus bisa beroperasi tanpa internet minimal 8 jam (satu shift kerja)
-- Data produk (10.000 SKU) harus bisa di-cache di lokal SQLite
-- Transaksi offline harus auto sync dalam waktu < 30 detik setelah koneksi pulih
-- Conflict resolution: last-write-wins berdasarkan timestamp transaksi
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Raw Material** | ✅ Ada | Bahan baku dengan stok |
+| **Recipe / BOM** | ✅ Ada | Bill of Materials (resep/ formula) |
+| **Produksi** | ❌ Baru | Production order/work order |
+| **Waste / Loss** | ❌ Baru | Catat material terbuang |
+| **Stock Bahan** | ❌ Baru | Dashboard raw material stock |
 
-### 5.2 Performance
-- Waktu respons API: < 200ms untuk endpoint baca, < 500ms untuk endpoint tulis
+#### Production Workflow
+```
+Production Order → Reserve Raw Materials → 
+Production In Progress → 
+Output: Finished Goods + Waste → 
+Update Raw Material Stock → 
+Update Finished Goods Stock
+```
+
+---
+
+### 4.6 CRM / CUSTOMER
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Customer** | ✅ Ada | Database pelanggan + riwayat belanja |
+| **Customer Group** | ✅ Ada | Segmentasi (new, active, VIP, dormant) |
+| **Membership / Tier** | ✅ Ada | Silver/Gold/Platinum tier system |
+| **Loyalty Point** | ✅ Ada | Poin reward + redeem |
+| **Gift Voucher** | ❌ Baru | E-voucher generation & redemption |
+| **Piutang Customer / AR** | ❌ Baru | Accounts receivable aging |
+
+#### Gift Voucher
+- Generate batch voucher (kode unik)
+- Nilai nominal atau persentase
+- Expiry date per voucher
+- Term & condition per voucher
+- Track redemption history
+
+#### Customer AR
+- Piutang dari penjualan kredit
+- Jatuh tempo per invoice
+- Payment collection
+- AR Aging Report: 0-30, 31-60, 61-90, >90 hari
+
+---
+
+### 4.7 SUPPLIER
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Supplier** | ✅ Ada | Database supplier + kontak |
+| **Hutang Supplier / AP** | ❌ Baru | Accounts payable aging |
+| **Supplier Performance** | ❌ Baru | Rating, on-time delivery, quality score |
+
+#### Supplier Performance Metrics
+- On-time delivery rate (%)
+- Order accuracy (%)
+- Quality score (1-5)
+- Average lead time (hari)
+- Return rate (%)
+
+---
+
+### 4.8 OUTLET / CABANG
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Daftar Outlet** | ✅ Ada | Multi-outlet management |
+| **Gudang Outlet** | ❌ Baru | Gudang per outlet |
+| **Transfer Antar Outlet** | ❌ Baru | Inter-outlet stock transfer |
+| **Sinkronisasi** | ❌ Baru | Data sync status antar outlet |
+
+---
+
+### 4.9 KEUANGAN (Finance)
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Chart of Accounts** | ❌ Baru | COA hierarchy (assets, liabilities, equity, revenue, expenses) |
+| **Kas** | ❌ Baru | Cash account management |
+| **Bank** | ❌ Baru | Bank account management |
+| **Jurnal Umum** | ❌ Baru | Double-entry journal entries |
+| **Pemasukan** | ❌ Baru | Income entries (non-sales) |
+| **Pengeluaran** | ❌ Baru | Expense entries + kategori |
+| **Transfer Kas** | ❌ Baru | Cash transfer antar akun |
+| **Metode Pembayaran** | ✅ Ada | Payment method CRUD |
+| **Pajak** | ❌ Baru | Tax configuration (PPN, PPh) + reporting |
+| **Rekonsiliasi Bank** | ❌ Baru | Bank reconciliation |
+
+#### COA Structure
+```
+1. ASET
+  1.1 Aset Lancar (Kas, Bank, Piutang, Persediaan)
+  1.2 Aset Tetap (Peralatan, Kendaraan, Bangunan)
+2. KEWAJIBAN
+  2.1 Hutang Jangka Pendek (AP, Pajak)
+  2.2 Hutang Jangka Panjang
+3. EKUITAS (Modal, Laba Ditahan)
+4. PENDAPATAN (Penjualan, Pendapatan Lain)
+5. BEBAN (HPP, Gaji, Sewa, Listrik, Marketing)
+```
+
+#### Double-Entry Rule
+- Setiap transaksi minimal 2 jurnal (debit + kredit)
+- Total debit = total kredit
+- Auto-generate dari modul: sales → penjualan + kas/piutang
+- Auto-generate dari modul: purchase → inventory + AP
+- Manual journal entry untuk adjustment
+
+---
+
+### 4.10 PROMO / MARKETING
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Discount** | ✅ Ada | Discount template (percent/fixed) |
+| **Voucher** | ❌ Baru | Digital voucher dengan kode unik |
+| **Buy X Get Y** | ❌ Baru | Bundle promo: beli A gratis B |
+| **Bundle / Paket** | ❌ Baru | Product bundling (paket hemat) |
+| **Happy Hour** | ❌ Baru | Time-based discount (jam tertentu) |
+| **Promo Member** | ❌ Baru | Membership-specific promo rules |
+
+#### Promo Engine Rules
+- Stacking rules: boleh digabung/tidak dengan promo lain
+- Priority order (diskon mana yang dihitung dulu)
+- Min/max purchase amount
+- Applicable products/categories/brands
+- Valid date range
+- Usage limit (per customer / total)
+
+---
+
+### 4.11 LAPORAN (Reports)
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Dashboard Analytics** | ❌ Baru | Executive dashboard dengan drill-down |
+| **Laporan Penjualan** | ✅ Ada | Sales summary + detail |
+| **Laporan Pembelian** | ❌ Baru | Purchase summary + detail |
+| **Laporan Profit** | ❌ Baru | Gross profit per produk/kategori |
+| **Laba Rugi (P&L)** | ❌ Baru | Full profit & loss statement |
+| **Laporan Stok** | ✅ Ada | Stock position + movement |
+| **Stok Opname Report** | ❌ Baru | Opname history + selisih |
+| **Produk Terlaris** | ❌ Baru | Best seller ranking |
+| **Kategori Terlaris** | ❌ Baru | Best category performance |
+| **Laporan Customer** | ❌ Baru | Customer analytics + segmentasi |
+| **Laporan Supplier** | ❌ Baru | Supplier purchase analytics |
+| **Laporan Kasir** | ❌ Baru | Cashier performance + shift |
+| **Laporan Outlet** | ❌ Baru | Per-outlet performance comparison |
+| **Laporan Pajak** | ❌ Baru | Tax report (PPN masukan/keluaran) |
+| **Laporan Discount** | ❌ Baru | Discount usage analytics |
+| **Laporan Return** | ❌ Baru | Return/refund analytics |
+| **Shift Kasir Report** | ❌ Baru | Per-shift cash summary |
+| **Cash Flow** | ❌ Baru | Arus kas masuk/keluar |
+| **Rekap Harian** | ❌ Baru | Daily business recap |
+| **Laporan Keuangan** | ✅ Ada | Financial summary |
+
+#### Setiap Laporan Wajib Punya
+- Date range filter (dari → sampai)
+- Group by: harian/mingguan/bulanan/tahunan
+- Outlet filter (multi-select)
+- Chart interaktif (Chart.js)
+- Summary cards di atas
+- Detail table di bawah
+- Export: PDF + Excel (CSV)
+- Print-friendly layout
+
+---
+
+### 4.12 PEGAWAI / HR
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Pegawai** | ✅ Ada | Employee database |
+| **Kasir** | ⚠️ Partial | Cashier management (perlu diperdalam) |
+| **Shift** | ✅ Ada | Shift scheduling |
+| **Absensi** | ✅ Ada | Attendance tracking |
+| **Komisi** | ❌ Baru | Commission calculation per sales |
+| **Target Penjualan** | ❌ Baru | Sales target setting & monitoring |
+
+#### Komisi
+- Rule-based: % dari omset, % dari profit, fixed per item
+- Tiered commission (semakin tinggi omset, semakin besar %)
+- Per produk / kategori / brand
+- Bonus target tercapai
+- Komisi tim vs individu
+
+#### Target Penjualan
+- Set target per kasir/sales per bulan
+- Target per outlet
+- Progress tracking real-time
+- Leaderboard motivasi
+
+---
+
+### 4.13 NOTIFIKASI
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Low Stock Alert** | ⚠️ Widget | Perlu full management UI |
+| **Out Of Stock Alert** | ❌ Baru | Stok habis notification |
+| **Expired Product Alert** | ❌ Baru | Expiry notification |
+| **Approval Notification** | ⚠️ Widget | Pending approval alerts |
+| **Purchase Reminder** | ❌ Baru | Reorder point notification |
+| **System Notification** | ❌ Baru | Central notification management |
+
+#### Notification Channels
+- In-app (database notification via Filament)
+- WhatsApp (via provider adapter)
+- Email (via provider adapter)
+- SMS (via provider adapter)
+- Telegram (via provider adapter)
+
+---
+
+### 4.14 INTEGRASI
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Provider Management** | ✅ Ada | Generic provider CRUD |
+| **WhatsApp Gateway** | ❌ Baru | WA Business API / Fonnte / Wablas |
+| **Email SMTP** | ❌ Baru | Custom SMTP per tenant |
+| **QRIS** | ❌ Baru | QRIS static & dynamic |
+| **Midtrans** | ❌ Baru | Payment gateway |
+| **Xendit** | ❌ Baru | Payment gateway |
+| **Printer** | ❌ Baru | ESC/POS printer config |
+| **Barcode Scanner** | ❌ Baru | Scanner device config |
+| **Marketplace** | ❌ Baru | Tokopedia, Shopee, TikTok Shop connector |
+| **E-commerce** | ❌ Baru | WooCommerce, Shopify connector |
+| **API Management** | ❌ Baru | API key generation & docs |
+| **Webhook** | ❌ Baru | Outbound webhook config |
+
+---
+
+### 4.15 PENGATURAN (Tenant Settings)
+
+| Sub-Menu | Status | Deskripsi |
+|---|---|---|
+| **Profil Perusahaan** | ❌ Baru | Nama, logo, alamat, NPWP, telepon |
+| **Outlet / Cabang** | ✅ Ada | Kelola outlet |
+| **User Management** | ✅ Ada | Kelola user + role |
+| **Role & Permission** | ✅ Ada | RBAC matrix |
+| **Nomor Invoice** | ❌ Baru | Custom invoice number format |
+| **Backup & Restore** | ❌ Baru | Database backup management |
+| **Bahasa** | ❌ Baru | Multi-language (ID, EN) |
+| **Zona Waktu** | ❌ Baru | Timezone configuration |
+| **Audit Log** | ✅ Ada | Activity audit trail |
+| **Activity Log** | ❌ Baru | User activity log |
+| **API Key** | ❌ Baru | API key generation untuk integrasi |
+| **Email SMTP** | ❌ Baru | SMTP configuration per tenant |
+| **WhatsApp Gateway** | ❌ Baru | WA gateway config per tenant |
+| **Integrasi** | ❌ Baru | Integration settings |
+| **System Configuration** | ✅ Ada | System-wide config (key-value) |
+
+---
+
+### 4.16 SUPER ADMIN PANEL
+
+| Menu | Status | Deskripsi |
+|---|---|---|
+| **Dashboard** | ❌ Baru | Platform metrics, MRR, tenant health |
+| **Tenant Management** | ❌ Baru | List tenant, create, suspend, delete |
+| **Subscription Plans** | ❌ Baru | Plan CRUD + feature matrix |
+| **Subscription** | ❌ Baru | Active subscriptions per tenant |
+| **Billing & Invoices** | ❌ Baru | Generate invoice, payment tracking |
+| **Payments** | ❌ Baru | Payment history per tenant |
+| **Coupons** | ❌ Baru | Discount coupon untuk subscription |
+| **White Label** | ❌ Baru | Custom domain, logo, theme per tenant |
+| **Feature Toggle** | ❌ Baru | Enable/disable fitur per tenant/plan |
+| **Announcements** | ❌ Baru | Broadcast message ke tenant |
+| **Support Tickets** | ❌ Baru | Helpdesk ticket management |
+| **System Monitoring** | ❌ Baru | Server health, queue status, error rate |
+| **License** | ⚠️ Partial | License pairing (whitelabel v3) |
+| **AI Usage** | ❌ Baru | Track AI credit consumption |
+| **Storage Usage** | ❌ Baru | Track storage per tenant |
+| **API Usage** | ❌ Baru | Rate limit & usage analytics |
+| **Audit Log** | ❌ Baru | Global audit trail |
+| **System Logs** | ❌ Baru | Laravel log viewer |
+
+---
+
+### 4.17 MODUL TAMBAHAN KHUSUS PER VERTIKAL
+
+#### Restaurant / Cafe
+| Fitur | Deskripsi |
+|---|---|
+| Table Management | Denah meja, status (available/occupied/reserved) |
+| Kitchen Display | Tampilan dapur untuk order masuk |
+| Menu Management | Kategori menu + foto + deskripsi |
+| Modifiers / Topping | Tambahan item (extra cheese, less sugar) |
+| Split Bill | Pisah tagihan per orang/meja |
+
+#### Apotek
+| Fitur | Deskripsi |
+|---|---|
+| Resep Dokter | Input resep, print etiket obat |
+| Obat Generik vs Paten | Flagging + pencarian |
+| Batch & Expiry | Wajib untuk obat |
+| BPJS / Asuransi | Integrasi klaim |
+
+#### Bengkel
+| Fitur | Deskripsi |
+|---|---|
+| Service Advisor | Input kendaraan, keluhan, estimasi |
+| Spare Parts Management | Parts catalog + stok |
+| Work Order | Proses perbaikan step-by-step |
+| Job Tracking | Status pengerjaan real-time |
+| Mekanik Assignment | Tugas ke mekanik |
+
+#### Laundry
+| Fitur | Deskripsi |
+|---|---|
+| Order Tracking | Status cucian (diterima→dicuci→setrika→siap) |
+| Satuan vs Kiloan | Harga per item vs per kg |
+| Express Service | Layanan kilat (hari sama) |
+| Delivery | Pickup & delivery management |
+
+---
+
+## 5. Tech Stack
+
+### Backend
+| Komponen | Teknologi | Keterangan |
+|---|---|---|
+| Framework | Laravel 13 | PHP 8.3+ |
+| Admin Panel | Filament 5.6 | Full-stack admin |
+| Templating | Blade + Tailwind CSS 4 | Custom responsive theme |
+| Reactive | Livewire | Komponen dinamis |
+| Database | MySQL 8.4 | Primary database |
+| Session | file / database | Session management |
+| Queue | Database (default) | Async processing |
+| API | Laravel Sanctum | Token-based auth |
+| PDF | Barryvdh/DomPDF | Export laporan |
+| Excel | pxlrbt/filament-excel | Export Excel |
+
+### Frontend
+| Komponen | Teknologi |
+|---|---|
+| CSS Framework | Tailwind CSS 4 |
+| JS Framework | Alpine.js |
+| Charts | Chart.js |
+| Icons | Heroicons (Blade) + Font Awesome |
+| Font | Inter + JetBrains Mono (Bunny CDN) |
+
+---
+
+## 6. Non-Functional Requirements
+
+### 6.1 Multi-Tenancy
+- **Isolasi Data:** Semua query di-scope oleh `tenant_id`
+- **Isolasi File:** Storage per tenant di sub-folder terpisah
+- **Tenant Identification:** Middleware membaca domain/subdomain untuk identifikasi tenant
+- **Onboarding:** Form registrasi → pilih paket → langsung dapat dashboard
+
+### 6.2 Performance
+- Waktu respons API: < 200ms (read), < 500ms (write)
 - Loading halaman admin: < 2 detik (first paint)
-- Scan barcode ke tampil di cart: < 500ms
-- Cetak struk Bluetooth: < 3 detik setelah tekan "Bayar"
-- Database query harus pakai index optimal untuk semua kolom yang sering di-query
+- Database query: semua pakai index optimal
+- Pagination: default 15 items per halaman
+- Eager loading: hindari N+1 di semua list view
 
-### 5.3 Security
-- Semua API endpoint di-protect dengan Sanctum token
-- Password di-hash dengan Bcrypt (Laravel default)
-- API key & secret di-encrypt at rest (Laravel encryption)
-- Rate limiting: max 60 request/menit per token untuk endpoint umum
-- SQL injection prevention: semua query pakai Eloquent / Query Builder (parameterized)
-- XSS prevention: Blade auto-escape, Flutter input sanitization
-- Audit log lengkap: siapa, apa, kapan, IP address, user agent
+### 6.3 Security
+- Password Bcrypt hashed (Laravel default)
+- API key & secret encrypted at rest
+- Rate limiting: 60 req/menit per endpoint
+- SQL injection prevention: parameterized query via Eloquent
+- XSS prevention: Blade auto-escape
+- CSRF protection: Laravel default
+- Audit log: semua aksi CRUD tercatat
+- Tenant data isolation: tidak bisa akses data tenant lain
 
-### 5.4 Auto-Backup
-- Database backup otomatis setiap hari (scheduler: `php artisan backup:run`)
-- Simpan backup di storage lokal + upload ke cloud storage (opsional, misal S3)
-- Retensi: 7 backup harian + 4 backup mingguan + 3 backup bulanan
-- Alert jika backup gagal (notifikasi ke Owner)
+### 6.4 Responsive Design
+- Desktop: 1440px+
+- Tablet: 768px–1023px
+- Mobile: 414px–767px
+- Touch targets: min 38×38px (WCAG 2.5.5)
+- Kontras warna: min 4.5:1 (WCAG 1.4.3)
+- Reduced motion support
 
-### 5.5 Audit Log
-- Semua aksi CRUD di-record: user, aksi, model, ID, data sebelum, data sesudah, timestamp
-- View transaksi → tidak di-audit (hanya baca)
-- Audit log tidak bisa dihapus (bahkan oleh Owner)
-- Retensi: 2 tahun, lalu diarsipkan ke file (opsional)
+### 6.5 Backup & Recovery
+- Auto backup database harian (scheduler: 02:00 WIB)
+- Retensi: 7 daily + 4 weekly + 3 monthly
+- Restore from backup (admin UI)
 
-### 5.6 Responsive & Aksesibilitas (WCAG)
-- Admin panel Filament wajib responsive: desktop (1440px), tablet (768px), mobile (414px)
-- Touch targets minimum 38×38px di mobile (WCAG 2.5.5)
-- Kontras warna minimum 4.5:1 untuk teks normal (WCAG 1.4.3)
-- Keyboard navigasi: semua form bisa diakses tanpa mouse
-- Screen reader: label ARIA di form input, alt text di gambar
-- Reduced motion: `@media (prefers-reduced-motion: reduce)` di CSS
+### 6.6 Audit Trail
+- Semua aksi CRUD di-record
+- IP address + user agent
+- Old values + new values
+- Immutable (tidak bisa dihapus/diubah)
+- Retensi 2 tahun
 
-### 5.7 Skalabilitas
-- Dukungan minimal 50 outlet per instalasi
-- Dukungan minimal 100.000 SKU per database
-- Dukungan minimal 5.000 transaksi per hari per outlet
-- Arsitektur siap horizontal scaling (load balancer + multiple app server)
-
-### 5.8 Ketersediaan (Availability)
-- Target uptime: 99.5% (kecuali maintenance terencana)
-- Maintenance window: Minggu 02:00–04:00 WIB
-- Graceful degradation: jika server mati, aplikasi Flutter tetap bisa transaksi offline
+### 6.7 Error Handling
+- Graceful error pages (403, 404, 500)
+- Sentry/Flare integration (opsional)
+- Queue failed jobs table
+- Retry mechanism 3× + exponential backoff
 
 ---
 
-## 6. Arsitektur Sistem
+## 7. Arsitektur Multi-Tenant
+
+### Database Strategy: Shared Database + Shared Schema
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│                      CLIENT LAYER                          │
-│  ┌──────────────────┐  ┌──────────────────────────────┐    │
-│  │  Admin Panel (Web)│  │  Kasir App (Flutter Android) │    │
-│  │  Laravel Blade    │  │  Riverpod + Dio + Drift      │    │
-│  │  Filament + Livewire│ │  SQLite (offline cache)      │    │
-│  └───────┬──────────┘  └──────────────┬───────────────┘    │
-└──────────┼────────────────────────────┼────────────────────┘
-           │        HTTPS (TLS 1.3)     │
-           ▼                            ▼
-┌────────────────────────────────────────────────────────────┐
-│                      API GATEWAY                           │
-│  ┌──────────────────────────────────────────────────────┐  │
-│  │              Nginx Reverse Proxy                      │  │
-│  │          (SSL termination, rate limiting)             │  │
-│  └───────────────────────┬──────────────────────────────┘  │
-└──────────────────────────┼─────────────────────────────────┘
-                           │
-                           ▼
-┌────────────────────────────────────────────────────────────┐
-│                   APPLICATION LAYER                         │
-│  ┌──────────┐  ┌───────────┐  ┌──────────────────────────┐ │
-│  │  Sanctum  │  │  Filament  │  │  Queue Worker (Redis)    │ │
-│  │  API Auth │  │  Admin UI  │  │  - Sync data offline     │ │
-│  │           │  │            │  │  - Send notifications    │ │
-│  │           │  │            │  │  - Generate reports      │ │
-│  │           │  │            │  │  - Backup database       │ │
-│  └─────┬─────┘  └─────┬──────┘  └───────────┬──────────────┘ │
-└────────┼──────────────┼─────────────────────┼───────────────┘
-         │              │                     │
-         ▼              ▼                     ▼
-┌────────────────────────────────────────────────────────────┐
-│                      DATA LAYER                             │
-│  ┌──────────┐  ┌───────────┐  ┌──────────────────────────┐ │
-│  │  MySQL 8 │  │  Redis    │  │  Storage (local / S3)     │ │
-│  │  Primary │  │  Cache +  │  │  - Backup files           │ │
-│  │  DB      │  │  Queue    │  │  - Product images         │ │
-│  │          │  │           │  │  - Exported reports       │ │
-│  └──────────┘  └───────────┘  └──────────────────────────┘ │
-└────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────┐
+│                    SINGLE DATABASE                           │
+│                     (dataerpasia)                             │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  Semua tabel punya kolom `tenant_id`                        │
+│  Middleware auto-scope: WHERE tenant_id = current_tenant()  │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  GLOBAL TABLES (tenant_id = null)                     │  │
+│  │  • plans          • coupons          • announcements  │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐  │
+│  │  TENANT TABLES (tenant_id = FK)                       │  │
+│  │  • outlets        • products         • orders         │  │
+│  │  • customers      • suppliers        • categories     │  │
+│  │  • payments       • stock_*          • users          │  │
+│  │  • settings       • ...                              │  │
+│  └───────────────────────────────────────────────────────┘  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Komunikasi Flutter ↔ Laravel
-- REST API via HTTPS dengan JSON payload
-- Autentikasi: token Sanctum (disimpan aman di Flutter Secure Storage)
-- Sync: POST `/api/v1/sync/batch` — kirim semua transaksi offline dalam satu request array, dapatkan response dengan status & ID server
+### Tenant Resolution Flow
+```
+Request Masuk → Middleware → 
+  Subdomain? (tenantA.erpasia.test) → cari tenant by slug
+  Header? (X-Tenant-ID) → cari tenant by ID
+  Session? → tenant_id di session
+→ Set Current Tenant di Service Container
+→ Semua query auto-scope WHERE tenant_id = {current}
+```
+
+### Fitur White Label per Tenant
+- Custom domain (CNAME: toko-anda.com → tenant-123)
+- Custom logo & favicon
+- Custom nama aplikasi
+- Custom warna tema (primary color)
+- Custom SMTP
+- Custom WhatsApp Gateway
+- Custom payment gateway
+- Custom invoice header & footer
+
+### Subscription Model
+| Paket | Harga/Bulan | Outlet | User | Produk | Transaksi/Hari |
+|---|---|---|---|---|---|
+| **Free** | Rp 0 | 1 | 2 | 100 | 50 |
+| **Starter** | Rp 149K | 1 | 5 | 1.000 | 200 |
+| **Professional** | Rp 399K | 3 | 15 | 10.000 | 1.000 |
+| **Business** | Rp 999K | 10 | 50 | 50.000 | 5.000 |
+| **Enterprise** | Rp 2.499K | Unlimited | Unlimited | Unlimited | Unlimited |
+| **Lifetime** | Rp 14.999K (sekali) | Unlimited | Unlimited | Unlimited | Unlimited |
 
 ---
 
-## 7. Database Design Highlights
+## 8. Database Strategy
 
-### 7.1 Tabel Utama (Core Entities)
-```
-outlets             — data cabang/toko
-users               — user admin panel (Owner, Manager, Admin Gudang)
-cashiers            — user aplikasi kasir (mobile)
-customers           — data customer/member
-categories          — kategori produk
-brands              — merek produk
-products            — produk (induk)
-product_variants    — varian produk (size, warna, dll.)
-product_units       — multi satuan & konversi
-suppliers           — data supplier
-```
+### Naming Convention
+- Tabel: `snake_case` plural (contoh: `products`, `order_items`)
+- Kolom FK: `{table_singular}_id` (contoh: `product_id`, `category_id`)
+- Pivot: `{table_a}_{table_b}` alphabetical (contoh: `outlet_user`)
+- Index: `idx_{table}_{column}` (contoh: `idx_products_sku`)
+- Unique: `uk_{table}_{column}` (contoh: `uk_products_barcode`)
 
-### 7.2 Transaksi (Transaction Entities)
-```
-carts               — keranjang belanja (aktif + hold)
-cart_items          — item dalam keranjang
-orders              — transaksi penjualan (completed)
-order_items         — item dalam transaksi
-payments            — pembayaran (bisa multiple per order → split payment)
-purchase_orders     — purchase order ke supplier
-po_items            — item dalam PO
-stock_movements     — mutasi stok (in/out/transfer/adjustment)
-stock_transfers     — transfer stok antar outlet
-```
+### Migration Strategy
+- Setiap modul punya file migrasi sendiri
+- Urutan berdasarkan dependensi FK
+- Gunakan `$table->foreignId()->constrained()->cascadeOnDelete()` untuk pivot
+- Gunakan `$table->foreignId()->constrained()->restrictOnDelete()` untuk transaksional
+- Semua migrasi bisa di-rollback
 
-### 7.3 Loyalty & Finance
-```
-memberships         — data membership customer (tier, poin)
-point_transactions  — riwayat tambah/pakai poin
-supplier_payables   — hutang AP ke supplier
-payable_payments    — pembayaran hutang ke supplier
-cash_drawers        — shift kasir & closing cash
-```
+### Soft Delete
+- Tabel master data: soft delete (categories, products, customers, suppliers)
+- Tabel transaksi: TIDAK soft delete (pakai void/cancel status)
+- Tabel pivot: hard delete
+- Tabel system: hard delete (notifications bertahan 30 hari)
 
-### 7.4 Sistem
-```
-audit_logs          — audit trail semua aksi
-notifications       — notifikasi (low stock, expired, dll.)
-system_settings     — konfigurasi aplikasi (key-value)
-sync_queue          — antrian sync offline Flutter
-backups             — metadata backup database
-```
+### Audit Strategy
+- Tabel `audit_logs` terpisah
+- Record: user, action, model, model_id, old_values (JSON), new_values (JSON), ip, user_agent
+- Tidak bisa dihapus/diubah
+- Retensi: 2 tahun, lalu arsip ke file
+
+### Performance Index
+- Semua kolom FK wajib index
+- Kolom yang sering di-search: fulltext index (nama produk, customer)
+- Kolom date filter: composite index (outlet_id + created_at)
+- Kolom status filter: index (order_status, payment_status)
 
 ---
 
-## 8. UI/UX Guidelines
+## 9. UI/UX Guidelines
 
-### 8.1 Admin Panel (Filament + Blade)
+### Design System
+- **Inspirasi:** Stripe, Linear, Shopify, SAP Fiori
+- **Palet:** Blue primary (Color::Blue) dengan gray neutral
+- **Typography:** Inter (UI) + JetBrains Mono (code/numbers)
+- **Radius:** 14px cards, 8px inputs, 6px badges
+- **Shadow:** Soft shadow (0 1px 3px rgba(0,0,0,0.08))
+- **Spacing:** 8px base grid system
 
-#### Navigation Groups (9 groups, mengikuti alur bisnis):
-1. **Master Data** — Outlet, Kategori, Brand, Produk, Customer, Supplier
-2. **Penjualan** — Orders, Payments, Carts (Hold)
-3. **Pembelian** — Purchase Order, Penerimaan Barang, Retur Supplier
-4. **Inventori** — Stok Opname, Stok Transfer, Stok Mutasi
-5. **Finance** — Hutang AP, Pembayaran AP, Cash Drawer, COA
-6. **Loyalty** — Membership, Poin, Promo & Voucher
-7. **Laporan** — Sales, Profit & Loss, Best Seller, Closing Cash, Aging AP
-8. **Sistem** — User, Role, Audit Log, System Settings, Backup
-9. **Integrasi** — Provider (Payment, SMS, WA, Email), Webhook
+### Navigation Rules
+1. 14 navigation groups dengan emoji prefix
+2. Max 12 item per group (split jika lebih)
+3. Min 3 item per group (gabung jika kurang)
+4. Unique Heroicon per resource
+5. All labels Bahasa Indonesia
+6. Group utama collapsed: false, sisanya collapsed: true
 
-#### Dashboard Widgets (per role):
-| Widget              | Visible To              | Tipe      |
-|---------------------|-------------------------|-----------|
-| Stats Overview      | Semua                   | 4 cards   |
-| Revenue Chart       | Owner, Manager          | Bar chart |
-| Best Seller Donut   | Owner, Manager          | Donut     |
-| Low Stock Alert     | Owner, Manager, Gudang  | Table     |
-| Pending Approvals   | Owner, Manager          | Table     |
-| Today Transactions  | Kasir                   | Table     |
-| Expiring Products   | Manager, Gudang         | Table     |
-| Cash Drawer Status  | Kasir, Manager          | Card      |
+### Empty States
+- Setiap empty state punya: illustration icon + judul + deskripsi + CTA button
+- Contoh: "Belum ada produk" → "Tambahkan produk pertama Anda" → [Tambah Produk]
 
-#### Theme:
-- Custom Filament theme CSS (primary gradient indigo→violet)
-- Responsive breakpoints: 640px, 768px, 1024px
-- Sidebar collapsible, glass topbar, soft card shadows
-- Dark mode support
+### Loading States
+- Skeleton loading untuk cards & tables
+- Spinner untuk button actions
+- Progress bar untuk upload/import
 
-### 8.2 Aplikasi Kasir (Flutter)
-
-#### Halaman Utama:
-1. **Dashboard Kasir** — Stat hari ini, shift info, quick shortcuts
-2. **Transaksi** — Scan / cari produk → cart → checkout (halaman utama)
-3. **Hold List** — Daftar transaksi yang di-hold
-4. **Riwayat** — Transaksi hari ini (per kasir)
-5. **Profil** — Info kasir, logout, sync status
-
-#### Tampilan Cart:
-- Top: search bar + scan button
-- Tab kategori horizontal (bisa scroll)
-- Grid produk (2 kolom di HP, 3-4 kolom di tablet)
-- Cart panel: slide-up dari bawah (HP) atau side panel kanan (tablet)
-- FAB "Hold" & "Checkout" di cart footer
-
-#### Checkout Flow:
-```
-Cart Review → Select Customer (opsional) → 
-Select Payment Method → Input Amount → 
-(Repeat for Split Payment) → 
-Print Struk / Kirim WA / Selesai
-```
+### Permission Visibility
+- Menu tidak muncul jika user tidak punya akses
+- Tombol aksi disabled + tooltip jika tidak punya izin
+- Data di-scope sesuai outlet assignment
 
 ---
 
-## 9. Timeline & Milestone
+## 10. Timeline & Milestone
 
-### Fase 0: Foundation (Minggu 1)
-- Setup project Laravel 13 + Filament 5.6
-- Setup database schema (migrations)
-- Setup custom theme (Tailwind, responsive)
-- Setup Sanctum API + Flutter project scaffold
-- CI/CD pipeline (GitHub Actions)
-- **Deliverable:** Admin panel login + Dashboard skeleton + Flutter login ke API
+### Fase 1: Foundation — Multi-Tenant Core (Minggu 1-2)
+- Multi-tenant architecture (tenant_id scoping)
+- Super Admin Panel (tenant CRUD, dashboard)
+- Subscription Plans (CRUD + feature matrix)
+- Tenant registration flow
+- White label basic (custom logo, name, color)
 
-### Fase 1: Master Data (Minggu 2–3)
-- Outlet, Kategori, Brand, Produk + Varian + Multi Satuan
-- Customer database
-- Supplier database
-- System settings
-- **Deliverable:** CRUD lengkap semua master data di admin panel
+### Fase 2: Penjualan Module (Minggu 3-4)
+- Quotation workflow
+- Draft penjualan
+- Delivery order
+- Enhancement POS Kasir
 
-### Fase 2: Inventori (Minggu 4)
-- Stok masuk/keluar/mutasi
-- Stok opname
-- Low stock alert
-- Expiry tracking (batch)
-- **Deliverable:** Manajemen stok lengkap + alert system
-
-### Fase 3: Pembelian (Minggu 5)
-- Purchase Order (CRUD + approval)
+### Fase 3: Pembelian Module (Minggu 5)
 - Penerimaan barang
-- Retur supplier
-- Hutang AP + pembayaran
-- **Deliverable:** Siklus pembelian supplier lengkap
+- Retur pembelian
+- Riwayat pembelian
+- Enhancement PO workflow
 
-### Fase 4: Kasir Flutter v1 (Minggu 6–8)
-- Login + shift management
-- Barcode scanner + pencarian produk
-- Cart (add, edit qty, remove, diskon)
-- Checkout: single payment (tunai, QRIS, transfer)
-- Print struk Bluetooth
-- Hold & recall
-- Offline mode + auto sync
-- **Deliverable:** Aplikasi kasir MVP siap uji coba
+### Fase 4: Inventory Module (Minggu 6-7)
+- Gudang management
+- Batch number
+- Expiry tracking
+- Stok masuk/keluar log
+- Penyesuaian stok
 
-### Fase 5: Transaksi & Pembayaran (Minggu 9)
-- Order management (admin panel view)
-- Multi payment + split payment (Flutter v2)
-- Kirim struk WA & email
-- Void / batalkan transaksi
-- Cash drawer + closing kasir
-- **Deliverable:** Transaksi end-to-end selesai
+### Fase 5: Produksi Module (Minggu 8)
+- Production order
+- Waste tracking
+- Stock bahan dashboard
+- BOM enhancement
 
-### Fase 6: Loyalty (Minggu 10)
-- Poin reward (tambah, tukar)
-- Membership tier (silver/gold/platinum)
-- Auto upgrade/downgrade tier
-- Diskon otomatis per member
-- **Deliverable:** Sistem loyalitas customer lengkap
+### Fase 6: CRM Module (Minggu 9)
+- Gift voucher system
+- Customer AR (piutang)
+- Supplier performance
+- Supplier AP (hutang)
 
-### Fase 7: Multi-Outlet & Laporan (Minggu 11–12)
-- Dashboard multi-outlet (pusat)
-- Stok transfer antar cabang
-- Sales summary + Profit & Loss
-- Best seller + Slow mover
-- Export PDF & Excel
-- **Deliverable:** Multi-outlet + reporting selesai
+### Fase 7: Finance Module (Minggu 10-12)
+- Chart of Accounts
+- Double-entry journal
+- Kas & Bank management
+- Pemasukan & Pengeluaran
+- Transfer kas
+- Pajak configuration
+- Rekonsiliasi bank
+- Cash flow statement
+- Laba rugi statement
 
-### Fase 8: Polish & Testing (Minggu 13–14)
-- Screenshot capture (Playwright) untuk marketing
-- Halaman marketing landing (`/`)
-- Halaman dokumentasi (`/docs`)
-- Programmatic SEO routes
-- Sitemap.xml + robots.txt
-- Test coverage (feature + unit, target 40+ tests)
-- Bug fixing & performance optimization
-- **Deliverable:** MVP siap soft launch
+### Fase 8: Promo & Marketing (Minggu 13)
+- Voucher system
+- Buy X Get Y
+- Bundle / paket
+- Happy hour
+- Promo member
+- Discount engine enhancement
 
-### Fase 9: Soft Launch & Iterate (Minggu 15–16)
+### Fase 9: Laporan Module (Minggu 14-15)
+- Dashboard Analytics
+- Semua 19 laporan
+- Chart interaktif
+- PDF & Excel export
+
+### Fase 10: HR Module (Minggu 16)
+- Komisi calculation
+- Target penjualan
+- Enhancement shift & absensi
+
+### Fase 11: Notifikasi & Integrasi (Minggu 17-18)
+- Notification center
+- Payment gateway (Midtrans, Xendit, QRIS)
+- WhatsApp & Email gateway
+- Printer ESC/POS config
+- API key management
+- Webhook management
+
+### Fase 12: Super Admin Enhancement (Minggu 19)
+- Tenant billing & invoice
+- Coupons
+- Announcements
+- Support tickets
+- System monitoring
+- AI & Storage usage tracking
+
+### Fase 13: Vertikal Khusus (Minggu 20-22)
+- Restaurant/Cafe: Table, Kitchen Display, Menu
+- Apotek: Resep, BPJS, Batch/Expiry
+- Bengkel: Service Advisor, Work Order
+- Laundry: Order tracking
+
+### Fase 14: Polish & Launch (Minggu 23-24)
+- Testing (feature + unit)
+- Performance optimization
+- Documentation
+- Marketing landing page
+- PSEO
 - Deployment production
-- Onboarding user (Owner + Manager training)
-- Feedback loop → bug fix → fitur minor
-- **Deliverable:** Sistem live di 1 outlet percontohan
-
----
-
-## 10. Asumsi & Batasan
-
-### Asumsi
-1. Setiap toko minimal punya koneksi internet (walaupun tidak selalu stabil) — offline mode menangani ketidakstabilan
-2. Kasir menggunakan Android (minimal Android 8.0 / API 26)
-3. Printer struk menggunakan ESC/POS-compatible thermal printer via Bluetooth
-4. Barcode yang digunakan adalah barcode standar (EAN-13, UPC-A, CODE-128)
-5. QRIS diasumsikan menggunakan QR statis (merchant display) — tidak ada integrasi callback pembayaran di fase MVP
-
-### Batasan (Out of Scope MVP)
-1. **Tidak ada Fitur Akuntansi Ganda (Double Entry)** — Hanya pencatatan hutang piutang sederhana. COA dan jurnal penuh di luar scope MVP.
-2. **Tidak ada Integrasi e-Commerce** — Tidak ada sinkronisasi stok dengan Shopee/Tokopedia/dll.
-3. **Tidak ada HR & Payroll** — Tidak ada modul penggajian, absensi, dll.
-4. **Tidak ada Kitchen Display / F&B Production** — Fitur produksi (bill of materials) di luar scope.
-5. **Tidak ada Integrasi Payment Gateway real-time** — MVP pakai pencatatan manual pembayaran non-tunai (QRIS, transfer, e-wallet). Callback otomatis bisa ditambahkan di fase selanjutnya.
-6. **Tidak ada Multi-Tenant (SaaS)** — MVP adalah instalasi per toko/outlet. SaaS multi-tenant bisa dipertimbangkan di versi selanjutnya.
 
 ---
 
 ## 11. Definisi Sukses
 
-### Kriteria Rilis MVP
-- [ ] Aplikasi kasir Flutter bisa transaksi (scan → cart → bayar tunai → print struk)
-- [ ] Admin panel bisa kelola produk, stok, customer, supplier
-- [ ] Laporan sales summary bisa diakses Owner/Manager
-- [ ] Offline mode berfungsi: transaksi tanpa internet, auto sync saat online kembali
-- [ ] Minimal 1 toko riil menggunakan sistem selama 2 minggu tanpa masalah kritis
+### Kriteria Rilis MVP (Fase 1-7 selesai)
+- [x] Multi-tenant berfungsi (tenant A tidak bisa lihat data tenant B)
+- [ ] Super admin bisa kelola tenant + subscription
+- [ ] Tenant bisa daftar, pilih paket, langsung pakai
+- [ ] Core modules: Penjualan, Pembelian, Inventory, CRM, Finance
+- [ ] Laporan Sales, Profit & Loss, Cash Flow
+- [ ] White label custom domain + logo + nama
 - [ ] Test coverage > 70% untuk business logic
-- [ ] Semua halaman responsive di mobile & desktop
+- [ ] Semua halaman responsive
 
-### Metrik Sukses (Post-Launch, 3 bulan)
-- Zero data loss incident
-- Waktu transaksi rata-rata < 30 detik (dari scan ke print struk)
-- Akurasi stok 99%+ (dibanding stok fisik)
-- NPS (Net Promoter Score) dari user > 50
-- Crash rate aplikasi Flutter < 0.5%
+### Metrik Sukses (6 bulan post-launch)
+- 50+ tenant aktif
+- 99.9% data isolation (zero cross-tenant data leak)
+- Waktu transaksi < 30 detik
+- Akurasi stok 99%+
+- Churn rate < 5% per bulan
+- NPS > 50
 
 ---
 
-## Lampiran
+## 12. Glosarium
 
-### A. Glosarium
-| Istilah        | Definisi                                                     |
-|----------------|--------------------------------------------------------------|
-| SKU            | Stock Keeping Unit — kode unik produk                        |
-| PO             | Purchase Order — pesanan ke supplier                         |
-| AP             | Accounts Payable — hutang usaha                              |
-| QRIS           | Quick Response Code Indonesian Standard — standar QR bayar  |
-| ESC/POS        | Protokol printer termal standar Epson                        |
-| FEFO           | First Expired First Out — stok kadaluarsa dulu keluar dulu   |
-| HPP            | Harga Pokok Penjualan — modal barang yang terjual            |
-| COA            | Chart of Accounts — bagan akun keuangan                      |
-| Sanctum        | Package Laravel untuk API token authentication               |
-| Riverpod       | State management library untuk Flutter                       |
-| Drift          | Library SQLite untuk Flutter (type-safe)                     |
-
-### B. Referensi
-- [Laravel 13 Documentation](https://laravel.com/docs/13.x)
-- [Filament 5.x Documentation](https://filamentphp.com/docs/5.x)
-- [Flutter Documentation](https://flutter.dev/docs)
-- [WCAG 2.2 Guidelines](https://www.w3.org/TR/WCAG22/)
-- Architecture decision: Global CLAUDE.md preferences (No Hardcoded Providers, Programmatic SEO, Admin Panel Premium Theme, Clean Login)
+| Istilah | Definisi |
+|---|---|
+| **Tenant** | Pelanggan SaaS (misal: Toko Berkah, PT XYZ) |
+| **Super Admin** | Platform owner yang kelola semua tenant |
+| **MRR** | Monthly Recurring Revenue |
+| **White Label** | Rebranding aplikasi dengan merek sendiri |
+| **COA** | Chart of Accounts — bagan akun keuangan |
+| **AP** | Accounts Payable — hutang ke supplier |
+| **AR** | Accounts Receivable — piutang dari customer |
+| **BOM** | Bill of Materials — resep/formula produksi |
+| **FEFO** | First Expired First Out — stok kadaluarsa dulu keluar dulu |
+| **FIFO** | First In First Out — stok masuk dulu keluar dulu |
+| **HPP** | Harga Pokok Penjualan |
+| **RBAC** | Role-Based Access Control |
+| **PSEO** | Programmatic SEO |
+| **ESC/POS** | Protokol printer thermal standar Epson |
+| **QRIS** | Quick Response Code Indonesian Standard |
 
 ---
 
