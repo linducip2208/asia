@@ -15,9 +15,10 @@ class TenantDemoDataSeeder extends Seeder
         $plan = SubscriptionPlan::where('slug', 'enterprise')->first()
             ?? SubscriptionPlan::first();
 
-        $tenant = Tenant::create([
+        $tenant = Tenant::firstOrCreate(
+            ['slug' => 'demo'],
+            [
             'name' => 'Toko Demo ERPAsia',
-            'slug' => 'demo',
             'email' => 'demo@erpasia.test',
             'phone' => '081234567890',
             'address' => 'Jl. Demo No. 123, Jakarta',
@@ -79,16 +80,21 @@ class TenantDemoDataSeeder extends Seeder
 
         foreach ($users as $userData) {
             $userData['tenant_id'] = $tenant->id;
-            User::create($userData);
+            User::firstOrCreate(
+                ['email' => $userData['email']],
+                $userData
+            );
         }
 
-        $super = User::create([
-            'name' => 'Super Admin',
-            'email' => 'super@erpasia.test',
-            'password' => Hash::make('password'),
-            'role' => 'super_admin',
-            'tenant_id' => null,
-        ]);
+        User::firstOrCreate(
+            ['email' => 'super@erpasia.test'],
+            [
+                'name' => 'Super Admin',
+                'password' => Hash::make('password'),
+                'role' => 'super_admin',
+                'tenant_id' => null,
+            ]
+        );
 
         $this->command->info("Tenant demo created: {$tenant->name} (slug: {$tenant->slug})");
         $this->command->info('Super Admin: super@erpasia.test / password');
