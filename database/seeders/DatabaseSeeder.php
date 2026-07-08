@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             SubscriptionPlanSeeder::class,
             TenantDemoDataSeeder::class,
             RolePermissionSeeder::class,
+            ChartOfAccountSeeder::class,
             DemoDataSeeder::class,
         ]);
     }
