@@ -117,7 +117,7 @@
   array (
     'name' => 'erpasia',
     'env' => 'local',
-    'debug' => true,
+    'debug' => false,
     'url' => 'http://erpasia.test',
     'frontend_url' => 'http://localhost:3000',
     'asset_url' => NULL,
